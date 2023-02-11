@@ -1,0 +1,50 @@
+import requests
+import matplotlib.pyplot as plt
+import pandas as pd
+from bs4 import BeautifulSoup
+from lxml import etree
+
+lista_titulos = []
+lista_precios = []
+lista_link = []
+siguiente = "https://listado.mercadolibre.com.ar/tenis-raquetas"
+while True:
+  r = requests.get(siguiente)
+  if r.status_code == 200 :
+    web_ = BeautifulSoup(r.content,"html.parser")
+    #link
+    buscar_ = web_.find("li" , attrs = {"class":"ui-search-item__title shops__item-title"})
+    link = web_.find_all("a", attrs = {"class":"ui-search-item__group__element shops__items-group-details ui-search-link"})
+    link =[ i.get("href") for i in link ]
+    lista_link.extend(link)
+    # precios
+    x = etree.HTML(str(web_))
+    precios = x.xpath('//li[@class = "ui-search-layout__item shops__layout-item"]//div[@class = "ui-search-result__content-columns shops__content-columns"]//div[@class ="ui-search-price__second-line shops__price-second-line"]//span[@class = "price-tag-fraction"]')
+    precios =[ i.text for i in precios ]
+    lista_precios.extend(precios)
+    # titulos
+    titulos = web_.find_all("h2" , attrs = {"class":"ui-search-item__title shops__item-title"})
+    titulos = [ i.text for i in titulos ]
+    lista_titulos.extend(titulos)
+    #inicio y final
+    boton_ini = web_.find("span" , attrs = {"class":"andes-pagination__link"}).text
+    boton_ini = int(boton_ini)
+
+    boton_sig = web_.find("li" , attrs = {"class":"andes-pagination__page-count"})
+    boton_sig = int(boton_sig.text.split(" ")[1])
+  else:
+    break  
+  print(boton_ini,boton_sig)
+  if  boton_ini == boton_sig:
+    break
+  siguiente =  x.xpath('//div[@class="ui-search-pagination shops__pagination-content"]/ul/li[contains(@class,"--next")]/a')[0].get("href")
+
+
+
+
+
+
+df = pd.DataFrame({"precios" :lista_precios ,"titulos": lista_titulos,"Link": lista_link })
+df
+
+df.to_csv("Datos de mercado libre")
