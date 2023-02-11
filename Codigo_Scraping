@@ -41,7 +41,7 @@ def Generation_data_ML():
     siguiente =  x.xpath('//div[@class="ui-search-pagination shops__pagination-content"]/ul/li[contains(@class,"--next")]/a')[0].get("href")
   df = pd.DataFrame({"precios" :lista_precios ,"titulos": lista_titulos,"Link": lista_link })
   df.to_csv("Datos de mercado libre.csv",index=False,encoding='utf-8')
-
+Return df
 
 
 Generation_data_ML()
