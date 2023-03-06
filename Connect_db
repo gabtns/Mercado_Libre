@@ -1,0 +1,27 @@
+import pandas as pd
+import requests
+import mysql
+from mysql import connector
+import psycopg2
+
+
+conexion = psycopg2.connect(database="db_mercado",
+                        host="127.0.0.1",
+                        user="postgres",
+                        password="tpaso2019",
+                        port="5432")
+
+df = pd.read_csv("mercado_lib\Mlibre.csv")
+
+
+
+SQL = '''insert into db_merc(PRECIOS,DENOMINACION,link) values (%s,%s,%s)'''
+cursor = conexion.cursor()
+for i in df.values:
+    print(i)
+    cursor.execute(SQL,i)
+
+
+conexion.commit()
+conexion.close()
+cursor.close()
